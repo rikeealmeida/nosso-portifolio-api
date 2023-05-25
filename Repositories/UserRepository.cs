@@ -1,9 +1,9 @@
 ﻿using System;
 using nosso_portifolio_api.Models;
 
-namespace nosso_portifolio_api.Services
+namespace nosso_portifolio_api.Repositories
 {
-    public interface IUserService
+    public interface IUserRepository
     {
         List<User> GetAll();
         User GetById(int id);
@@ -12,10 +12,8 @@ namespace nosso_portifolio_api.Services
         void Remove(int id);
     }
 
-    public class UserService : IUserService
+    public class UserRepository : IUserRepository
     {
-        
-
         public void Add(User user)
         {
             throw new NotImplementedException();
