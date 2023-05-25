@@ -1,5 +1,6 @@
 ﻿using System;
 using nosso_portifolio_api.Models;
+using nosso_portifolio_api.Repositories;
 
 namespace nosso_portifolio_api.Services
 {
@@ -14,31 +15,37 @@ namespace nosso_portifolio_api.Services
 
     public class UserService : IUserService
     {
-        
+        private readonly IUserRepository _userRepository;
+
+        public UserService(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
 
         public void Add(User user)
         {
-            throw new NotImplementedException();
+            _userRepository.Add(user);
         }
 
         public List<User> GetAll()
         {
-            throw new NotImplementedException();
+            return _userRepository.GetAll();
         }
 
         public User GetById(int id)
         {
-            throw new NotImplementedException();
+            return _userRepository.GetById(id);
         }
 
         public void Remove(int id)
         {
-            throw new NotImplementedException();
+            _userRepository.Remove(id);
         }
 
         public void Update(User user)
         {
-            throw new NotImplementedException();
+            _userRepository.Update(user);
         }
     }
 }
