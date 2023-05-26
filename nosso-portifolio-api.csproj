@@ -22,6 +22,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Context\" />
@@ -30,6 +31,7 @@
 		<None Remove="Services\" />
 		<None Remove="Repositories\" />
 		<None Remove="DTOs\" />
+		<None Remove="Utils\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Context\" />
@@ -38,5 +40,6 @@
 		<Folder Include="Services\" />
 		<Folder Include="Repositories\" />
 		<Folder Include="DTOs\" />
+		<Folder Include="Utils\" />
 	</ItemGroup>
 </Project>
