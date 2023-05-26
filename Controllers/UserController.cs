@@ -70,8 +70,8 @@ namespace nosso_portifolio_api.Controllers
             user.Id = id;
             try
             {
-                await _userService.UpdateAsync(user);
-                return NoContent();
+                var newUser = await _userService.UpdateAsync(user);
+                return Ok(newUser);
             }
             catch (InvalidOperationException ex)
             {
@@ -81,6 +81,7 @@ namespace nosso_portifolio_api.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+
 
         }
         // PATCH: api/user/5
@@ -102,7 +103,7 @@ namespace nosso_portifolio_api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ocorreu um erro ao atualizar o usuário");
+                return StatusCode(500, $"Erro: {ex}");
             }
         }
 

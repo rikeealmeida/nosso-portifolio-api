@@ -51,6 +51,7 @@ namespace nosso_portifolio_api.Repositories
             if (userTodDelete == null)
                 throw new Exception("Usuário não encontrado!");
             _context.User.Remove(userTodDelete);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<User> UpdateAsync(User user)
