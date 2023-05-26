@@ -6,12 +6,13 @@ namespace nosso_portifolio_api.Services
 {
     public interface IUserService
     {
-        List<User> GetAll();
-        User GetById(int id);
-        void Add(User user);
-        void Update(User user);
-        void Remove(int id);
+        Task<List<User>> GetAllAsync();
+        Task<User> GetByIdAsync(int id);
+        Task<User> AddAsync(User user);
+        Task<User> UpdateAsync(User user);
+        Task RemoveAsync(int id);
     }
+
 
     public class UserService : IUserService
     {
@@ -23,29 +24,33 @@ namespace nosso_portifolio_api.Services
         }
 
 
-        public void Add(User user)
+        public async Task<User> AddAsync(User user)
         {
-            _userRepository.Add(user);
+            await _userRepository.AddAsync(user);
+            return user;
         }
 
-        public List<User> GetAll()
+        public async Task<List<User>> GetAllAsync()
         {
-            return _userRepository.GetAll();
+            var users = await _userRepository.GetAllAsync();
+            return users;
         }
 
-        public User GetById(int id)
+        public async Task<User> GetByIdAsync(int id)
         {
-            return _userRepository.GetById(id);
+            var user = await _userRepository.GetByIdAsync(id);
+            return user;
         }
 
-        public void Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            _userRepository.Remove(id);
+            await _userRepository.RemoveAsync(id);
         }
 
-        public void Update(User user)
+        public async Task<User> UpdateAsync(User user)
         {
-            _userRepository.Update(user);
+            await _userRepository.UpdateAsync(user);
+            return user;
         }
     }
 }

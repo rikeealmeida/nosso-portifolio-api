@@ -1,42 +1,64 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
+using nosso_portifolio_api.Context;
 using nosso_portifolio_api.Models;
 
 namespace nosso_portifolio_api.Repositories
 {
     public interface IUserRepository
     {
-        List<User> GetAll();
-        User GetById(int id);
-        void Add(User user);
-        void Update(User user);
-        void Remove(int id);
+        Task<List<User>> GetAllAsync();
+        Task<User> GetByIdAsync(int id);
+        Task<User> AddAsync(User user);
+        Task<User> UpdateAsync(User user);
+        Task RemoveAsync(int id);
     }
+
+
 
     public class UserRepository : IUserRepository
     {
-        public void Add(User user)
+        private readonly AppDbContext _context;
+
+        public UserRepository(AppDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public List<User> GetAll()
+        public async Task<User> AddAsync(User user)
         {
-            throw new NotImplementedException();
+            await _context.User.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
 
-        public User GetById(int id)
+        public async Task<List<User>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.User.ToListAsync();
         }
 
-        public void Remove(int id)
+        public async Task<User> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await _context.User.FindAsync(id);
+            if (user == null)
+                throw new Exception("Usuário não encontrado!");
+            return user;
         }
 
-        public void Update(User user)
+        public async Task RemoveAsync(int id)
         {
-            throw new NotImplementedException();
+            var userTodDelete = await _context.User.FindAsync(id);
+            if (userTodDelete == null)
+                throw new Exception("Usuário não encontrado!");
+            _context.User.Remove(userTodDelete);
+        }
+
+        public async Task<User> UpdateAsync(User user)
+        {
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return user;
         }
     }
 }
