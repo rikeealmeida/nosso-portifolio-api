@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
@@ -81,6 +82,28 @@ namespace nosso_portifolio_api.Controllers
                 return StatusCode(500, ex.Message);
             }
 
+        }
+        // PATCH: api/user/5
+        [HttpPatch("user/{id}")]
+        public async Task<IActionResult> PatchUser(int id, JsonPatchDocument<User> user)
+        {
+            try
+            {
+                var _user = await _userService.GetByIdAsync(id);
+                if (_user == null)
+                {
+                    return NotFound();
+                }
+                user.ApplyTo(_user);
+
+                await _userService.UpdateAsync(_user);
+
+                return Ok(_user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Ocorreu um erro ao atualizar o usuário");
+            }
         }
 
         // POST: api/User

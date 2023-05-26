@@ -2,14 +2,20 @@ using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
 using nosso_portifolio_api.Repositories;
 using nosso_portifolio_api.Services;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using nosso_portifolio_api.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.InputFormatters.Insert(0, MyJPIF.GetJsonPatchInputFormatter());
+}).AddNewtonsoftJson();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
