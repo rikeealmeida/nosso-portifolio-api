@@ -3,141 +3,150 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
+using nosso_portifolio_api.DTOs;
 using nosso_portifolio_api.Models;
-using nosso_portifolio_api.Services;
 
 namespace nosso_portifolio_api.Controllers
 {
-    [Route("api")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly AppDbContext _context;
 
-        public UserController(IUserService userService)
+        public UserController(AppDbContext context)
         {
-            _userService = userService;
+            _context = context;
         }
 
-
-        [HttpGet("users")]
-        public async Task<IActionResult> GetUsers()
+        // GET: api/User
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserWithProjectsDto>>> GetUser()
         {
-            try
+            if (_context.User == null)
             {
-                var users = await _userService.GetAllAsync();
-                return Ok(users);
+                return NotFound();
             }
-            catch (Exception ex)
+            var users = await _context.User.Include(u => u.Projects).ToListAsync();
+
+            var usersWithJobs = users.Select(user => new UserWithProjectsDto
             {
-                return StatusCode(500, "Ocorreo um erro ao obter os usuários");
-            }
+                Id = user.Id,
+                Email = user.Email,
+                Resume = user.Resume,
+                TelNumber = user.TelNumber,
+                Title = user.Title,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                GithubUrl = user.GithubUrl,
+                ImageUrl = user.ImageUrl,
+                InstagramUrl = user.InstagramUrl,
+                LinkedinUrl = user.LinkedinUrl,
+                Projects = user.Projects.Select(p => new ProjectWithoutUserDto
+                {
+                    Id = p.Id,
+                    Images = p.Images,
+                    Name = p.Name,
+                    Resume = p.Resume,
+                    Stacks = p.Stacks,
+                    Website = p.Website
+
+                }).ToList()
+
+            }).ToList();
+            return Ok(usersWithJobs);
         }
 
         // GET: api/User/5
-        [HttpGet("user/{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetUser(int id)
         {
-
-            try
+            if (_context.User == null)
             {
-                var user = await _userService.GetByIdAsync(id);
+                return NotFound();
+            }
+            var user = await _context.User.FindAsync(id);
 
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(user);
+            if (user == null)
+            {
+                return NotFound();
             }
 
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-
-            }
+            return user;
         }
 
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("user/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
-            user.Id = id;
-            try
+            if (id != user.Id)
             {
-                var newUser = await _userService.UpdateAsync(user);
-                return Ok(newUser);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
+                return BadRequest();
             }
 
+            _context.Entry(user).State = EntityState.Modified;
 
-        }
-        // PATCH: api/user/5
-        [HttpPatch("user/{id}")]
-        public async Task<IActionResult> PatchUser(int id, JsonPatchDocument<User> user)
-        {
             try
             {
-                var _user = await _userService.GetByIdAsync(id);
-                if (_user == null)
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
                 {
                     return NotFound();
                 }
-                user.ApplyTo(_user);
-
-                await _userService.UpdateAsync(_user);
-
-                return Ok(_user);
+                else
+                {
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro: {ex}");
-            }
+
+            return NoContent();
         }
 
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("users")]
-        public async Task<IActionResult> PostUser(User user)
+        [HttpPost]
+        public async Task<ActionResult<User>> PostUser(User user)
         {
+            if (_context.User == null)
+            {
+                return Problem("Entity set 'AppDbContext.User'  is null.");
+            }
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                var newUser = await _userService.AddAsync(user);
-                return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
         // DELETE: api/User/5
-        [HttpDelete("user/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            try
+            if (_context.User == null)
             {
-                await _userService.RemoveAsync(id);
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
+            var user = await _context.User.FindAsync(id);
+            if (user == null)
             {
-                return StatusCode(500, ex.Message);
+                return NotFound();
             }
+
+            _context.User.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
+        private bool UserExists(int id)
+        {
+            return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
     }
 }
