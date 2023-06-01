@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
+using nosso_portifolio_api.DTOs;
 using nosso_portifolio_api.Models;
 using nosso_portifolio_api.Services;
 
@@ -23,10 +23,11 @@ namespace nosso_portifolio_api.Controllers
             _userService = userService;
         }
 
-
+        // GET: api/users
         [HttpGet("users")]
-        public async Task<IActionResult> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserWithProjectsDto>>> GetUsers()
         {
+
             try
             {
                 var users = await _userService.GetAllAsync();
@@ -34,109 +35,69 @@ namespace nosso_portifolio_api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ocorreo um erro ao obter os usuários");
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
+
         }
 
-        // GET: api/User/5
         [HttpGet("user/{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<ActionResult<UserWithProjectsDto>> GetUser(int id)
         {
-
             try
             {
                 var user = await _userService.GetByIdAsync(id);
-
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
                 return Ok(user);
             }
-
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
-
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
 
-        // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("user/{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            user.Id = id;
-            try
-            {
-                await _userService.UpdateAsync(user);
-                return NoContent();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-
-        }
-        // PATCH: api/user/5
-        [HttpPatch("user/{id}")]
-        public async Task<IActionResult> PatchUser(int id, JsonPatchDocument<User> user)
-        {
-            try
-            {
-                var _user = await _userService.GetByIdAsync(id);
-                if (_user == null)
-                {
-                    return NotFound();
-                }
-                user.ApplyTo(_user);
-
-                await _userService.UpdateAsync(_user);
-
-                return Ok(_user);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Ocorreu um erro ao atualizar o usuário");
-            }
-        }
-
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("users")]
-        public async Task<IActionResult> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser(CreateUserDto createUserDto)
+        {
+            try
+            {
+                var user = await _userService.AddAsync(createUserDto);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
+        }
+
+        [HttpPut("user/{id}")]
+        public async Task<ActionResult<User>> PutUser(UpdateUserDto updateUserDto, int id)
         {
 
             try
             {
-                var newUser = await _userService.AddAsync(user);
-                return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
+                var user = await _userService.UpdateAsync(id, updateUserDto);
+
+                return Ok(user);
+
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
 
-        // DELETE: api/User/5
         [HttpDelete("user/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
                 await _userService.RemoveAsync(id);
+
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
-
     }
 }

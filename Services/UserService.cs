@@ -1,4 +1,5 @@
 ﻿using System;
+using nosso_portifolio_api.DTOs;
 using nosso_portifolio_api.Models;
 using nosso_portifolio_api.Repositories;
 
@@ -6,10 +7,10 @@ namespace nosso_portifolio_api.Services
 {
     public interface IUserService
     {
-        Task<List<User>> GetAllAsync();
-        Task<User> GetByIdAsync(int id);
-        Task<User> AddAsync(User user);
-        Task<User> UpdateAsync(User user);
+        Task<List<UserWithProjectsDto>> GetAllAsync();
+        Task<UserWithProjectsDto> GetByIdAsync(int id);
+        Task<User> AddAsync(CreateUserDto createUserDto);
+        Task<User> UpdateAsync(int id, UpdateUserDto updateUserDto);
         Task RemoveAsync(int id);
     }
 
@@ -24,19 +25,18 @@ namespace nosso_portifolio_api.Services
         }
 
 
-        public async Task<User> AddAsync(User user)
+        public async Task<User> AddAsync(CreateUserDto createUserDto)
         {
-            await _userRepository.AddAsync(user);
-            return user;
+            return await _userRepository.AddAsync(createUserDto);
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<UserWithProjectsDto>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();
             return users;
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<UserWithProjectsDto> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             return user;
@@ -47,10 +47,9 @@ namespace nosso_portifolio_api.Services
             await _userRepository.RemoveAsync(id);
         }
 
-        public async Task<User> UpdateAsync(User user)
+        public async Task<User> UpdateAsync(int id, UpdateUserDto updateUserDto)
         {
-            await _userRepository.UpdateAsync(user);
-            return user;
+            return await _userRepository.UpdateAsync(id, updateUserDto);
         }
     }
 }

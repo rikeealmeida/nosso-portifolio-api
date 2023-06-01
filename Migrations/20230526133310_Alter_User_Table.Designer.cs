@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using nosso_portifolio_api.Context;
@@ -11,9 +12,11 @@ using nosso_portifolio_api.Context;
 namespace nosso_portifolio_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230526133310_Alter_User_Table")]
+    partial class Alter_User_Table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,13 +25,16 @@ namespace nosso_portifolio_api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("nosso_portifolio_api.Models.Project", b =>
+            modelBuilder.Entity("nosso_portifolio_api.Models.Job", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
 
                     b.Property<List<string>>("Images")
                         .IsRequired()
@@ -46,18 +52,15 @@ namespace nosso_portifolio_api.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AuthorId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Job");
                 });
 
             modelBuilder.Entity("nosso_portifolio_api.Models.User", b =>
@@ -117,20 +120,20 @@ namespace nosso_portifolio_api.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("nosso_portifolio_api.Models.Project", b =>
+            modelBuilder.Entity("nosso_portifolio_api.Models.Job", b =>
                 {
-                    b.HasOne("nosso_portifolio_api.Models.User", "User")
-                        .WithMany("Projects")
-                        .HasForeignKey("UserId")
+                    b.HasOne("nosso_portifolio_api.Models.User", "Author")
+                        .WithMany("Jobs")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("nosso_portifolio_api.Models.User", b =>
                 {
-                    b.Navigation("Projects");
+                    b.Navigation("Jobs");
                 });
 #pragma warning restore 612, 618
         }
