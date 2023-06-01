@@ -8,159 +8,215 @@ using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
 using nosso_portifolio_api.DTOs;
 using nosso_portifolio_api.Models;
+using nosso_portifolio_api.Services;
 
 namespace nosso_portifolio_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        private readonly AppDbContext _context;
 
-        public ProjectController(AppDbContext context)
+        private readonly IProjectService _projectService;
+
+        public ProjectController(IProjectService projectService)
         {
-            _context = context;
+            _projectService = projectService;
         }
 
         // GET: api/Project
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProjectWithUserDto>>> GetJob()
+        [HttpGet("projects")]
+        public async Task<ActionResult<IEnumerable<ProjectWithUserDto>>> GetProjects()
         {
-            if (_context.Project == null)
-            {
-                return NotFound();
-            }
-            var projects = await _context.Project.Include(p => p.User).ToListAsync();
-
-            var projectsWithUser = projects.Select(p => new ProjectWithUserDto
-            {
-                Id = p.Id,
-                Images = p.Images,
-                Name = p.Name,
-                Resume = p.Resume,
-                Stacks = p.Stacks,
-                Website = p.Website,
-                User = new UserWithoutProjectsDto
-                {
-                    Id = p.User.Id,
-                    Resume = p.User.Resume,
-                    Email = p.User.Resume,
-                    FirstName = p.User.FirstName,
-                    GithubUrl = p.User.GithubUrl,
-                    ImageUrl = p.User.ImageUrl,
-                    InstagramUrl = p.User.InstagramUrl,
-                    LastName = p.User.LastName,
-                    LinkedinUrl = p.User.LinkedinUrl,
-                    TelNumber = p.User.TelNumber,
-                    Title = p.User.Title
-                },
-            });
-            return Ok(projectsWithUser);
-        }
-
-        // GET: api/Project/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
-        {
-            if (_context.Project == null)
-            {
-                return NotFound();
-            }
-            var project = await _context.Project.FindAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return project;
-        }
-
-        // PUT: api/Project/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(int id, Project project)
-        {
-            if (id != project.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(project).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                var projects = await _projectService.GetAllAsync();
+
+                return Ok(projects);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!ProjectExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
 
-            return NoContent();
+
+            //if (_context.Project == null)
+            //{
+            //    return NotFound();
+            //}
+            //var projects = await _context.Project.Include(p => p.User).ToListAsync();
+
+            //var projectsWithUser = projects.Select(p => new ProjectWithUserDto
+            //{
+            //    Id = p.Id,
+            //    Images = p.Images,
+            //    Name = p.Name,
+            //    Resume = p.Resume,
+            //    Stacks = p.Stacks,
+            //    Website = p.Website,
+            //    User = new UserWithoutProjectsDto
+            //    {
+            //        Id = p.User.Id,
+            //        Resume = p.User.Resume,
+            //        Email = p.User.Resume,
+            //        FirstName = p.User.FirstName,
+            //        GithubUrl = p.User.GithubUrl,
+            //        ImageUrl = p.User.ImageUrl,
+            //        InstagramUrl = p.User.InstagramUrl,
+            //        LastName = p.User.LastName,
+            //        LinkedinUrl = p.User.LinkedinUrl,
+            //        TelNumber = p.User.TelNumber,
+            //        Title = p.User.Title
+            //    },
+            //});
+            //return Ok(projectsWithUser);
+        }
+
+        // GET: api/Project/5
+        [HttpGet("project/{id}")]
+        public async Task<ActionResult<ProjectWithUserDto>> GetProject(int id)
+        {
+            try
+            {
+                var project = await _projectService.GetByIdAsync(id);
+                return Ok(project);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
+
+            //if (_context.Project == null)
+            //{
+            //    return NotFound();
+            //}
+            //var project = await _context.Project.FindAsync(id);
+
+            //if (project == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return project;
         }
 
         // POST: api/Project
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("projects")]
         public async Task<ActionResult<ProjectWithUserDto>> PostProject(CreateProjectDto createProjectDto)
         {
-            if (_context.Project == null)
+            try
             {
-                return Problem("Entity set 'AppDbContext.Project'  is null.");
+                var newProject = await _projectService.AddAsync(createProjectDto);
+                return Ok(newProject);
             }
-            var user = _context.User.FirstOrDefault(u => u.Id == createProjectDto.UserId);
-            if (user == null)
+            catch (Exception ex)
             {
-                return BadRequest("Id de usuário inválido");
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
-            var newProject = new Project
-            {
-                Images = createProjectDto.Images,
-                Name = createProjectDto.Name,
-                Resume = createProjectDto.Resume,
-                Stacks = createProjectDto.Stacks,
-                User = user,
-                UserId = createProjectDto.UserId,
-                Website = createProjectDto.Website
-            };
 
-            _context.Project.Add(newProject);
-            await _context.SaveChangesAsync();
+            //if (_context.Project == null)
+            //{
+            //    return Problem("Entity set 'AppDbContext.Project'  is null.");
+            //}
+            //var user = _context.User.FirstOrDefault(u => u.Id == createProjectDto.UserId);
+            //if (user == null)
+            //{
+            //    return BadRequest("Id de usuário inválido");
+            //}
+            //var newProject = new Project
+            //{
+            //    Images = createProjectDto.Images,
+            //    Name = createProjectDto.Name,
+            //    Resume = createProjectDto.Resume,
+            //    Stacks = createProjectDto.Stacks,
+            //    User = user,
+            //    UserId = createProjectDto.UserId,
+            //    Website = createProjectDto.Website
+            //};
 
-            return CreatedAtAction("GetProject", new { id = newProject.Id }, newProject);
+            //_context.Project.Add(newProject);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetProject", new { id = newProject.Id }, newProject);
         }
+
+
+        // PUT: api/Project/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("project/{id}")]
+        public async Task<IActionResult> PutProject(int id, UpdateProjectDto updateProjectDto)
+        {
+            try
+            {
+                var newProject = await _projectService.UpdateAsync(id, updateProjectDto);
+
+                return Ok(newProject);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
+            //if (id != project.Id)
+            //{
+            //    return BadRequest();
+            //}
+
+            //_context.Entry(project).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!ProjectExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
+        }
+
 
         // DELETE: api/Project/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
-            if (_context.Project == null)
+            try
             {
-                return NotFound();
+                await _projectService.RemoveAsync(id);
+                return NoContent();
             }
-            var project = await _context.Project.FindAsync(id);
-            if (project == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"Erro interno: {ex.Message}");
             }
+            //if (_context.Project == null)
+            //{
+            //    return NotFound();
+            //}
+            //var project = await _context.Project.FindAsync(id);
+            //if (project == null)
+            //{
+            //    return NotFound();
+            //}
 
-            _context.Project.Remove(project);
-            await _context.SaveChangesAsync();
+            //_context.Project.Remove(project);
+            //await _context.SaveChangesAsync();
 
-            return NoContent();
+            //return NoContent();
         }
 
-        private bool ProjectExists(int id)
-        {
-            return (_context.Project?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+        //private bool ProjectExists(int id)
+        //{
+        //    return (_context.Project?.Any(e => e.Id == id)).GetValueOrDefault();
+        //}
     }
 }

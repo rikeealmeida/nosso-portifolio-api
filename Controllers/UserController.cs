@@ -41,7 +41,7 @@ namespace nosso_portifolio_api.Controllers
         }
 
         [HttpGet("user/{id}")]
-        public async Task<ActionResult<UserWithProjectsDto>> getUser(int id)
+        public async Task<ActionResult<UserWithProjectsDto>> GetUser(int id)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace nosso_portifolio_api.Controllers
         }
 
         [HttpPost("users")]
-        public async Task<ActionResult<User>> postUser(CreateUserDto createUserDto)
+        public async Task<ActionResult<User>> PostUser(CreateUserDto createUserDto)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace nosso_portifolio_api.Controllers
         }
 
         [HttpPut("user/{id}")]
-        public async Task<ActionResult<User>> updateUser(UpdateUserDto updateUserDto, int id)
+        public async Task<ActionResult<User>> PutUser(UpdateUserDto updateUserDto, int id)
         {
 
             try
@@ -86,7 +86,7 @@ namespace nosso_portifolio_api.Controllers
         }
 
         [HttpDelete("user/{id}")]
-        public async Task<IActionResult> deleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
