@@ -12,10 +12,7 @@ namespace nosso_portifolio_api.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Job>()
-            //    .HasOne(j => j.Author)
-            //    .WithMany(u => u.Jobs)
-            //    .HasForeignKey(j => j.AuthorId);
+
             modelBuilder.Entity<User>()
                 .HasMany(e => e.Projects)
                 .WithOne(e => e.User)

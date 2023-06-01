@@ -24,13 +24,38 @@ namespace nosso_portifolio_api.Controllers
 
         // GET: api/Project
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetJob()
+        public async Task<ActionResult<IEnumerable<ProjectWithUserDto>>> GetJob()
         {
             if (_context.Project == null)
             {
                 return NotFound();
             }
-            return await _context.Project.ToListAsync();
+            var projects = await _context.Project.Include(p => p.User).ToListAsync();
+
+            var projectsWithUser = projects.Select(p => new ProjectWithUserDto
+            {
+                Id = p.Id,
+                Images = p.Images,
+                Name = p.Name,
+                Resume = p.Resume,
+                Stacks = p.Stacks,
+                Website = p.Website,
+                User = new UserWithoutProjectsDto
+                {
+                    Id = p.User.Id,
+                    Resume = p.User.Resume,
+                    Email = p.User.Resume,
+                    FirstName = p.User.FirstName,
+                    GithubUrl = p.User.GithubUrl,
+                    ImageUrl = p.User.ImageUrl,
+                    InstagramUrl = p.User.InstagramUrl,
+                    LastName = p.User.LastName,
+                    LinkedinUrl = p.User.LinkedinUrl,
+                    TelNumber = p.User.TelNumber,
+                    Title = p.User.Title
+                },
+            });
+            return Ok(projectsWithUser);
         }
 
         // GET: api/Project/5
