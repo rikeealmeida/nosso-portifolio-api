@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using nosso_portifolio_api.Context;
 using nosso_portifolio_api.Repositories;
 using nosso_portifolio_api.Services;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using nosso_portifolio_api.Utils;
 using Newtonsoft.Json;
+using nosso_portifolio_api.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +38,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
+var scope = app.Services.CreateScope();
+await DataHelper.ManageDataAsync(scope.ServiceProvider);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -45,8 +48,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors();
 
 app.UseHttpsRedirection();
 

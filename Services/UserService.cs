@@ -24,33 +24,15 @@ namespace nosso_portifolio_api.Services
             _userRepository = userRepository;
         }
 
+        public async Task<User> AddAsync(CreateUserDto createUserDto) => await _userRepository.AddAsync(createUserDto);
 
-        public async Task<User> AddAsync(CreateUserDto createUserDto)
-        {
-            return await _userRepository.AddAsync(createUserDto);
-        }
+        public async Task<List<UserWithProjectsDto>> GetAllAsync() => await _userRepository.GetAllAsync();
 
-        public async Task<List<UserWithProjectsDto>> GetAllAsync()
-        {
-            var users = await _userRepository.GetAllAsync();
-            return users;
-        }
+        public async Task<UserWithProjectsDto> GetByIdAsync(int id) => await _userRepository.GetByIdAsync(id);
 
-        public async Task<UserWithProjectsDto> GetByIdAsync(int id)
-        {
-            var user = await _userRepository.GetByIdAsync(id);
-            return user;
-        }
+        public async Task RemoveAsync(int id) => await _userRepository.RemoveAsync(id);
 
-        public async Task RemoveAsync(int id)
-        {
-            await _userRepository.RemoveAsync(id);
-        }
-
-        public async Task<User> UpdateAsync(int id, UpdateUserDto updateUserDto)
-        {
-            return await _userRepository.UpdateAsync(id, updateUserDto);
-        }
+        public async Task<User> UpdateAsync(int id, UpdateUserDto updateUserDto) => await _userRepository.UpdateAsync(id, updateUserDto);
     }
 }
 

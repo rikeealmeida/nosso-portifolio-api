@@ -28,7 +28,6 @@ namespace nosso_portifolio_api.Repositories
 
         public async Task<User> AddAsync(CreateUserDto createUserDto)
         {
-
             var user = new User
             {
                 FirstName = createUserDto.FirstName,
@@ -125,6 +124,12 @@ namespace nosso_portifolio_api.Repositories
 
         public async Task<User> UpdateAsync(int id, UpdateUserDto updateUserDto)
         {
+
+            if (_context.User == null)
+            {
+                throw new Exception("Nenhum usuário encontrado!");
+            }
+
             var user = await _context.User.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)

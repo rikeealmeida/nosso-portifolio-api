@@ -1,5 +1,5 @@
 ﻿using System;
-using nosso_portifolio_api.DTOs;
+using nosso_portifolio_api.Models;
 
 namespace nosso_portifolio_api.DTOs
 {

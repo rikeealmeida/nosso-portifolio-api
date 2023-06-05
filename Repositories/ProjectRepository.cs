@@ -9,7 +9,11 @@ namespace nosso_portifolio_api.Repositories
 
     public interface IProjectRepository
     {
-        Task<List<ProjectWithUserDto>> GetAllAsync();
+        Task<List<Project>> GetAllAsync();
+        Task<Project> GetByIdAsync(int id);
+        Task<Project> AddAsync(CreateProjectDto createProjectDto);
+        Task<Project> UpdateAsync(int id, UpdateProjectDto updateProjectDto);
+        Task RemoveAsync(int id);
     }
     public class ProjectRepository : IProjectRepository
     {
@@ -20,7 +24,32 @@ namespace nosso_portifolio_api.Repositories
             _context = context;
         }
 
-        public async Task<List<ProjectWithUserDto>> GetAllAsync()
+        public async Task<Project> AddAsync(CreateProjectDto createProjectDto)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Id == createProjectDto.UserId);
+            if (user == null)
+            {
+                throw new Exception("Usuário não encontrado!");
+            }
+
+            var project = new Project
+            {
+                Images = createProjectDto.Images,
+                Name = createProjectDto.Name,
+                Resume = createProjectDto.Resume,
+                Stacks = createProjectDto.Stacks,
+                UserId = createProjectDto.UserId,
+                Website = createProjectDto.Website,
+                User = user,
+            };
+
+            await _context.Project.AddAsync(project);
+            await _context.SaveChangesAsync();
+
+            return project;
+        }
+
+        public async Task<List<Project>> GetAllAsync()
         {
             if (_context.Project == null)
             {
@@ -28,30 +57,69 @@ namespace nosso_portifolio_api.Repositories
             }
             var projects = await _context.Project.Include(p => p.User).ToListAsync();
 
-            var projectsWithUser = projects.Select(p => new ProjectWithUserDto
+            return projects;
+        }
+
+        public async Task<Project> GetByIdAsync(int id)
+        {
+            if (_context.Project == null)
             {
-                Id = p.Id,
-                Images = p.Images,
-                Name = p.Name,
-                Resume = p.Resume,
-                Stacks = p.Stacks,
-                Website = p.Website,
-                User = new UserWithoutProjectsDto
-                {
-                    Id = p.User.Id,
-                    Resume = p.User.Resume,
-                    Email = p.User.Resume,
-                    FirstName = p.User.FirstName,
-                    GithubUrl = p.User.GithubUrl,
-                    ImageUrl = p.User.ImageUrl,
-                    InstagramUrl = p.User.InstagramUrl,
-                    LastName = p.User.LastName,
-                    LinkedinUrl = p.User.LinkedinUrl,
-                    TelNumber = p.User.TelNumber,
-                    Title = p.User.Title
-                },
-            }).ToList();
-            return projectsWithUser;
+                throw new Exception("Nenhum projeto encontrado!");
+            }
+            var project = await _context.Project.Include(p => p.User).FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                throw new Exception("Projeto não encontrado!");
+            }
+
+            return project;
+        }
+
+        public async Task RemoveAsync(int id)
+        {
+            if (_context.Project == null)
+            {
+                throw new Exception("Nenhum projeto encontrado!");
+            }
+            var project = await _context.Project.FirstOrDefaultAsync(p => p.Id == id);
+            if (project == null)
+            {
+                throw new Exception("Projeto não encontrado!");
+            }
+            _context.Project.Remove(project);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Project> UpdateAsync(int id, UpdateProjectDto updateProjectDto)
+        {
+            if (_context.Project == null)
+            {
+                throw new Exception("Nenhum projeto encontrado!");
+            }
+
+            var project = await _context.Project.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                throw new Exception("Projeto não encontrado!");
+            }
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Id == updateProjectDto.UserId);
+
+            project.Images = updateProjectDto.Images ?? project.Images;
+            project.Name = updateProjectDto.Name ?? project.Name;
+            project.Resume = updateProjectDto.Resume ?? project.Resume;
+            project.Stacks = updateProjectDto.Stacks ?? project.Stacks;
+            project.UserId = updateProjectDto.UserId ?? project.UserId;
+            project.Website = updateProjectDto.Website ?? project.Website;
+            project.UserId = updateProjectDto.UserId ?? project.UserId;
+            project.User = user ?? project.User;
+
+            _context.Entry(project).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return project;
         }
     }
 }

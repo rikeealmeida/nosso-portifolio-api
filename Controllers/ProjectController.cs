@@ -26,7 +26,7 @@ namespace nosso_portifolio_api.Controllers
 
         // GET: api/Project
         [HttpGet("projects")]
-        public async Task<ActionResult<IEnumerable<ProjectWithUserDto>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
         {
 
             try
@@ -43,7 +43,7 @@ namespace nosso_portifolio_api.Controllers
 
         // GET: api/Project/5
         [HttpGet("project/{id}")]
-        public async Task<ActionResult<ProjectWithUserDto>> GetProject(int id)
+        public async Task<ActionResult<Project>> GetProject(int id)
         {
             try
             {
@@ -54,25 +54,12 @@ namespace nosso_portifolio_api.Controllers
             {
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
-
-            //if (_context.Project == null)
-            //{
-            //    return NotFound();
-            //}
-            //var project = await _context.Project.FindAsync(id);
-
-            //if (project == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //return project;
         }
 
         // POST: api/Project
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("projects")]
-        public async Task<ActionResult<ProjectWithUserDto>> PostProject(CreateProjectDto createProjectDto)
+        public async Task<ActionResult<Project>> PostProject(CreateProjectDto createProjectDto)
         {
             try
             {
@@ -83,31 +70,6 @@ namespace nosso_portifolio_api.Controllers
             {
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
-
-            //if (_context.Project == null)
-            //{
-            //    return Problem("Entity set 'AppDbContext.Project'  is null.");
-            //}
-            //var user = _context.User.FirstOrDefault(u => u.Id == createProjectDto.UserId);
-            //if (user == null)
-            //{
-            //    return BadRequest("Id de usuário inválido");
-            //}
-            //var newProject = new Project
-            //{
-            //    Images = createProjectDto.Images,
-            //    Name = createProjectDto.Name,
-            //    Resume = createProjectDto.Resume,
-            //    Stacks = createProjectDto.Stacks,
-            //    User = user,
-            //    UserId = createProjectDto.UserId,
-            //    Website = createProjectDto.Website
-            //};
-
-            //_context.Project.Add(newProject);
-            //await _context.SaveChangesAsync();
-
-            //return CreatedAtAction("GetProject", new { id = newProject.Id }, newProject);
         }
 
 
@@ -119,37 +81,12 @@ namespace nosso_portifolio_api.Controllers
             try
             {
                 var newProject = await _projectService.UpdateAsync(id, updateProjectDto);
-
                 return Ok(newProject);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
-            //if (id != project.Id)
-            //{
-            //    return BadRequest();
-            //}
-
-            //_context.Entry(project).State = EntityState.Modified;
-
-            //try
-            //{
-            //    await _context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!ProjectExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-
-            //return NoContent();
         }
 
 
@@ -166,20 +103,6 @@ namespace nosso_portifolio_api.Controllers
             {
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
-            //if (_context.Project == null)
-            //{
-            //    return NotFound();
-            //}
-            //var project = await _context.Project.FindAsync(id);
-            //if (project == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //_context.Project.Remove(project);
-            //await _context.SaveChangesAsync();
-
-            //return NoContent();
         }
     }
 }
