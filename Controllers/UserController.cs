@@ -71,7 +71,6 @@ namespace nosso_portifolio_api.Controllers
         [HttpPut("user/{id}")]
         public async Task<ActionResult<User>> PutUser(UpdateUserDto updateUserDto, int id)
         {
-
             try
             {
                 var user = await _userService.UpdateAsync(id, updateUserDto);
